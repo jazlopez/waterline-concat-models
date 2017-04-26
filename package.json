@@ -1,0 +1,29 @@
+{
+  "name": "waterline-concat-models",
+  "version": "1.0.0",
+  "description": "ORM Waterline helper to load collections in order to prevent foreign key errors. Exclude collections from being loaded by ORM.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jazlopez/waterline-concat-models.git"
+  },
+  "keywords": [
+    "waterline",
+    "concat",
+    "collections"
+  ],
+  "author": "Jaziel Lopez <juan.jaziel@gmail.com> (http://jlopez.mx)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jazlopez/waterline-concat-models/issues"
+  },
+  "homepage": "https://github.com/jazlopez/waterline-concat-models#readme",
+  "dependencies": {
+    "concat-files": "^0.1.1",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  }
+}
