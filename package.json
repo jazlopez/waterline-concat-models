@@ -1,6 +1,6 @@
 {
   "name": "waterline-concat-models",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ORM Waterline helper to load collections in order to prevent foreign key errors. Exclude collections from being loaded by ORM.",
   "main": "index.js",
   "scripts": {
