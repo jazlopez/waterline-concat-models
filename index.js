@@ -1,5 +1,5 @@
 'use strict';
-
+const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const concat = require('concat-files');
@@ -13,68 +13,99 @@ const concat = require('concat-files');
  * @author: Jaziel Lopez <juan.jaziel@gmail.com>
  *
  * @link
- */
+    */
 module.exports = {
 
-        /**
-         *
-         * Create a suited autoloader for Waterline collection loader
-         *
-         * @param cb
-         * @param models
-         * @param autoloader
-         */
-        all: function (cb, models, autoloader) {
+    defaults: {
 
-            /**
-             *
-             */
-            return new Promise(() => {
+        name: 'schema.js',
+    },
 
-                let all = [], loadQueue = [];
+    /**
+     * Create a suited autoloader for Waterline collection loader
+     * @param source
+     * @param destination
+     * @param cb
+     * @param autoloader
+     * @returns {*}
+     */
+    all: function (source, destination, cb, autoloader) {
 
-                if (!models) {
+        let
 
-                    models = path.join(__dirname, 'models');
+            all = [],
+
+            fullPath = '',
+
+            loadQueue = [];
+
+        try {
+
+            if(!fs.existsSync(source)){
+
+                throw new Error('No such file or directory: ' + source);
+            }
+
+            if(!fs.existsSync(destination)) {
+
+                fs.mkdirSync(destination, '0775');
+            }
+
+            if(!autoloader){
+
+                autoloader = path.join(destination, this.defaults.name);
+            }
+
+            if(fs.existsSync(autoloader)){
+
+                fs.unlinkSync(autoloader);
+            }
+
+            fs.readdir(source, (err, files) => {
+
+                if (err) {
+
+                    throw err;
                 }
 
-                if (!autoloader) {
-                    autoloader = path.join(__dirname, 'autoload', 'autoload.js');
+                if(files.length === 0) {
+
+                    throw new Error('Could not found any models at: ' + source);
                 }
 
-                fs.readdirSync(models).filter(function (file) {
+
+                files.filter(function (file) {
 
                     return (file.indexOf(".") !== 0) && (file !== "index.js");
 
                 }).forEach(function (file) {
 
-                    const fullPath = path.join(models, file);
+                    fullPath = path.join(source, file);
 
                     all.push({base: path.basename(fullPath), exec: require(fullPath).exec});
-
                 });
 
                 /**
                  *
                  * Sort queue of modules  upon exec property. If exec is undefined the element will be at end of stack
                  */
-                all.sort((antecesor, sucesor) => {
+                all.sort((ancestor, successor) => {
 
-                    if (!sucesor.exec) {
+                    if (!successor.exec) {
 
                         return 1;
                     }
 
-                    return parseInt(sucesor.exec) - parseInt(antecesor.exec);
+                    return parseInt(successor.exec) - parseInt(ancestor.exec);
 
-                }).reverse();
+                });
 
                 /**
                  * Final stack (sorted and clean)
                  */
                 all.forEach(module => {
 
-                    loadQueue.push(path.join(models, module.base))
+                    loadQueue.push(path.join(source, module.base));
                 });
 
 
@@ -85,11 +116,18 @@ module.exports = {
 
                     if (err) {
 
-                        return cb(new Error(err.message, null));
+                        throw err;
                     }
 
                     return cb(null, autoloader);
                 });
-            })
+
+            });
+
+        } catch (e) {
+
+            return cb(e, null);
+
         }
+    }
 };

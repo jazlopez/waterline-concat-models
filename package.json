@@ -4,7 +4,7 @@
   "description": "ORM Waterline helper to load collections in order to prevent foreign key errors. Exclude collections from being loaded by ORM.",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "./node_modules/mocha/bin/mocha test/test.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,12 @@
   "dependencies": {
     "concat-files": "^0.1.1",
     "fs": "0.0.1-security",
+    "lodash": "^4.17.4",
     "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "jshint": "^2.9.4",
+    "mocha": "^3.3.0",
+    "should": "^11.2.1"
   }
 }
