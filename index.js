@@ -21,6 +21,55 @@ module.exports = {
         name: 'schema.js',
     },
 
+    resolve: (file, deps, self) => {
+
+        let def, dep, attr,
+
+            cb, ev, tmp,
+
+            modelAttrs, currentDir;
+
+        currentDir = path.parse(file).dir;
+
+        tmp = new Buffer(fs.readFileSync(file)).toString();
+
+        ev = eval(tmp);
+
+        if(ev.hasOwnProperty('attributes')){
+
+            modelAttrs = Array.from(Object.keys(ev.attributes));
+
+            for(attr in modelAttrs){
+
+                if(modelAttrs.hasOwnProperty(attr)){
+
+                    def = ev.attributes[modelAttrs[attr]];
+
+                    dep = def.model || '';
+
+                    if (!_.isEmpty(dep)) {
+
+                        cb = path.join(currentDir, _.upperFirst(dep) + '.js');
+
+                        if(deps.includes(cb)) {
+
+                            continue;
+                        }
+
+                        self(cb, deps, self);
+                    }
+                }
+            }
+
+            if(!deps.includes(file)){
+
+                deps.push(file);
+            }
+        }
+
+        return deps;
+    },
+
     /**
      * Create a suited autoloader for Waterline collection loader
      * @param source
@@ -31,13 +80,9 @@ module.exports = {
      */
     all: function (source, destination, cb, autoloader) {
 
-        let
+        const resolve = this.resolve;
 
-            all = [],
-
-            fullPath = '',
-
-            loadQueue = [];
+        let i, deps = [];
 
         try {
 
@@ -74,45 +119,26 @@ module.exports = {
                 }
 
 
-                files.filter(function (file) {
+                files = files.filter(file => {
 
                     return (file.indexOf(".") !== 0) && (file !== "index.js");
 
-                }).forEach(function (file) {
+                }).map(file => {
 
-                    fullPath = path.join(source, file);
-
-                    all.push({base: path.basename(fullPath), exec: require(fullPath).exec});
-                });
-
-                /**
-                 *
-                 * Sort queue of modules  upon exec property. If exec is undefined the element will be at end of stack
-                 */
-                all.sort((ancestor, successor) => {
-
-                    if (!successor.exec) {
-
-                        return 1;
-                    }
-
-                    return parseInt(successor.exec) - parseInt(ancestor.exec);
+                    return  path.join(source, file);
 
                 });
 
-                /**
-                 * Final stack (sorted and clean)
-                 */
-                all.forEach(module => {
 
-                    loadQueue.push(path.join(source, module.base));
-                });
+                for(i = 0; i < files.length; i++){
 
+                    deps = resolve(files[i], deps, resolve);
+                }
 
                 /**
                  * Concat modules for waterline collection auto loading
                  */
-                concat(loadQueue, autoloader, (err) => {
+                concat(deps, autoloader, (err) => {
 
                     if (err) {
 

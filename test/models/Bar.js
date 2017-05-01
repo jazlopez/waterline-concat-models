@@ -11,8 +11,6 @@ module.exports.Bar = {
 
     autoPK: true,
 
-    exec: 3,
-
     attributes: {
 
         name: {

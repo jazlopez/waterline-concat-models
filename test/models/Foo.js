@@ -11,8 +11,6 @@ module.exports.Foo = {
 
   autoPK: true,
 
-    exec: 1,
-
   attributes: {
       email: {
           type: 'email',

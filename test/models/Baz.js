@@ -9,8 +9,6 @@ module.exports.Baz = {
 
     autoPK: true,
 
-    exec:2,
-
   attributes: {
 
       name: {
